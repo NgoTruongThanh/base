@@ -31,14 +31,14 @@ class AccountButton extends ConsumerWidget{
       appLang = default_app_local_value_key;
     }
 
-    String txtTheme = "";
+    String txt_theme = "";
     if(configColor != null) {
       Map<String, dynamic> store = appLang.toJson();
       MapEntry? entry = store.entries.where((s) => s.key.compareTo(configColor) == 0).firstOrNull;
       if (entry != null) {
-        txtTheme = entry.value.toString();
+        txt_theme = entry.value.toString();
       } else {
-        txtTheme = configColor;
+        txt_theme = configColor!;
       }
     }
 
@@ -82,7 +82,7 @@ class AccountButton extends ConsumerWidget{
       menuChildren: [
         MenuItemButton(
           child: Text(
-            txtTheme,
+            txt_theme,
             style: TextStyle(
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.bold,

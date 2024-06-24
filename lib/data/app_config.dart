@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart' as EncryptSys;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 import '../apis/base_api.dart';
 import '../utils/data_store.dart';
@@ -166,25 +167,25 @@ class AppConfigNotifier extends Notifier<AppConfig> {
   @override
   AppConfig build() {
     // TODO: implement build
-    List<MenuItem>? appMenu = getAppConfigMenuFromStore();
-    appMenu ??= default_app_menu;
+    List<MenuItem>? app_menu = getAppConfigMenuFromStore();
+    app_menu ??= default_app_menu;
 
-    String? appValue = getAppLangFromStore();
-    if(appValue == null) {
+    String? app_value = getAppLangFromStore();
+    if(app_value == null) {
       List<String> tmps = getListCodeValueKey();
       if(tmps.isNotEmpty) {
-        appValue = tmps[0];
+        app_value = tmps[0];
       }
     }
 
-    String? appColors = getAppColorsFromStore();
-    if(appColors == null) {
+    String? app_colors = getAppColorsFromStore();
+    if(app_colors == null) {
       List<String> tmps = getListCodeAppColors();
       if(tmps.isNotEmpty) {
-        appColors = tmps[0];
+        app_colors = tmps[0];
       }
     }
-    return AppConfig(cfgMenu: appMenu, cfgValueKey: appValue!, cfgColors: appColors!);
+    return AppConfig(cfgMenu: app_menu!, cfgValueKey: app_value!, cfgColors: app_colors!);
   }
 
   void updateMenu(List<MenuItem> items) {
@@ -217,15 +218,15 @@ class UserController extends AutoDisposeAsyncNotifier<User?> {
   @override
   FutureOr<User?> build() {
     // TODO: implement build
-    User? user = getUserFromStore();
-    state = AsyncData(user);
-    return user;
+    User? _user = getUserFromStore();
+    state = AsyncData(_user);
+    return _user;
   }
 
   Future<void> login(String username, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      User? user = await app_api.login(username, password);
+      User? user = await app_api?.login(username, password);
       if(user != null) {
         await setUserToStore(user);
       }
@@ -235,10 +236,10 @@ class UserController extends AutoDisposeAsyncNotifier<User?> {
 
   Future<void> renewToken() async {
     User? tmpUser = state.value;
-    if(tmpUser != null && tmpUser.token.isNotEmpty) {
+    if(tmpUser != null && tmpUser.token != null && tmpUser.token!.isNotEmpty) {
       state = const AsyncLoading();
       state = await AsyncValue.guard(() async {
-        User? user = await app_api.renewToken(tmpUser.token);
+        User? user = await app_api?.renewToken(tmpUser.token!);
         if(user != null) {
           await setUserToStore(user);
         }

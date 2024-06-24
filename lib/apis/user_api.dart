@@ -1,5 +1,6 @@
 import 'package:basestvgui/apis/base_api.dart';
 import 'package:dio/dio.dart';
+import 'package:logger/logger.dart';
 
 import '../data/models/user.dart';
 
@@ -18,7 +19,7 @@ mixin UserApi on BaseApi {
       if (response.statusCode == 200) {
         logger.i(" API_USER_LOGIN : ${response.data} ");
         User user = User.fromJson(response.data);
-        if(user.token.isEmpty) {
+        if(user.token == null || user.token!.isEmpty) {
           return user;
         } else {
           return user;
@@ -42,7 +43,7 @@ mixin UserApi on BaseApi {
       if (response.statusCode == 200) {
         logger.i(" API_USER_RENEWTOKEN : ${response.data} ");
         User user = User.fromJson(response.data);
-        if(user.token.isEmpty) {
+        if(user.token == null || user.token!.isEmpty) {
           return user;
         } else {
           return user;

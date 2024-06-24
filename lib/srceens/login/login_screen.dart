@@ -1,11 +1,15 @@
 import 'package:basestvgui/utils/toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 import '../../data/app_color.dart';
 import '../../data/app_config.dart';
 import '../../data/local_value_key.dart';
+import '../../data/models/user.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen ({
@@ -46,28 +50,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
     Map<String, dynamic> store = appLang.toJson();
 
-    String txtTilte = "login";
-    MapEntry? entry = store.entries.where((s) => s.key.compareTo(txtTilte) == 0).firstOrNull;
+    String txt_tilte = "login";
+    MapEntry? entry = store.entries.where((s) => s.key.compareTo(txt_tilte) == 0).firstOrNull;
     if (entry != null) {
-      txtTilte = entry.value.toString();
+      txt_tilte = entry.value.toString();
     }
 
-    String txtUsername = "username";
-    entry = store.entries.where((s) => s.key.compareTo(txtUsername) == 0).firstOrNull;
+    String txt_username = "username";
+    entry = store.entries.where((s) => s.key.compareTo(txt_username) == 0).firstOrNull;
     if (entry != null) {
-      txtUsername = entry.value.toString();
+      txt_username = entry.value.toString();
     }
 
-    String txtPassword = "password";
-    entry = store.entries.where((s) => s.key.compareTo(txtPassword) == 0).firstOrNull;
+    String txt_password = "password";
+    entry = store.entries.where((s) => s.key.compareTo(txt_password) == 0).firstOrNull;
     if (entry != null) {
-      txtPassword = entry.value.toString();
+      txt_password = entry.value.toString();
     }
 
-    String txtBtSignin = "btLogin";
-    entry = store.entries.where((s) => s.key.compareTo(txtBtSignin) == 0).firstOrNull;
+    String txt_bt_signin = "btLogin";
+    entry = store.entries.where((s) => s.key.compareTo(txt_bt_signin) == 0).firstOrNull;
     if (entry != null) {
-      txtBtSignin = entry.value.toString();
+      txt_bt_signin = entry.value.toString();
     }
 
     return Container(
@@ -82,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 top: 130
               ),
               child: Text(
-                txtTilte,
+                txt_tilte,
                 style: TextStyle(
                   color: appColors.textColor,
                   fontSize: 33,
@@ -111,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             fillColor: appColors.selectedColor,
                             filled: true,
-                            hintText: txtUsername,
+                            hintText: txt_username,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             )
@@ -134,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             fillColor: appColors.selectedColor,
                             filled: true,
-                            hintText: txtPassword,
+                            hintText: txt_password,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             )
@@ -152,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: appColors!.buttonColor, // background (button) color
-                                foregroundColor: appColors.selectedColor, // foreground (text) color
+                                foregroundColor: appColors!.selectedColor, // foreground (text) color
                               ),
                               onPressed: () {
                                 isSignIn = true;
@@ -166,12 +170,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                       Future.delayed(const Duration(milliseconds: 100),() {
                                         context.showFailureToast(
                                           title: appLang!.msg_title_login_fail,
-                                          description: appLang.msg_description_login_fail,
+                                          description: appLang!.msg_description_login_fail,
                                         );
                                       });
                                     }
                                     return Text (
-                                      txtBtSignin,
+                                      txt_bt_signin,
                                       style: TextStyle(
                                         color: appColors!.textColor,
                                         fontStyle: FontStyle.normal,
@@ -183,10 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       context.goNamed("home", extra: true);
                                       context.showSuccessToast(
                                         title: appLang!.msg_title_login_success,
-                                        description: "${appLang.msg_description_login_success} ${value.name}",
+                                        description: appLang!.msg_description_login_success + " ${value.name}",
                                       );
                                     });
-                                    return const CircularProgressIndicator();
+                                    return CircularProgressIndicator();
                                     // return Text (
                                     //   txt_bt_signin,
                                     //   style: TextStyle(
@@ -205,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     );
                                   });
                                   return Text (
-                                    txtBtSignin,
+                                    txt_bt_signin,
                                     style: TextStyle(
                                       color: appColors!.textColor,
                                       fontStyle: FontStyle.normal,
@@ -214,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   );
                                 },
                                 loading: () {
-                                  return const CircularProgressIndicator();
+                                  return CircularProgressIndicator();
                                 },
                               ),
                             ),

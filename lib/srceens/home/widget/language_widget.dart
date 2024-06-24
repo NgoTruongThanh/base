@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/app_color.dart';
@@ -6,7 +7,7 @@ import '../../../data/app_config.dart';
 import '../../../data/local_value_key.dart';
 
 class LanguageButton extends ConsumerWidget {
-  const LanguageButton({super.key});
+  LanguageButton({super.key});
 
   @override
   createState() {
@@ -63,7 +64,7 @@ class LanguageButton extends ConsumerWidget {
               style: TextStyle(
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.bold,
-                color: appColors.accountTextColor,
+                color: appColors!.accountTextColor,
               ),
             ),
           ),
@@ -83,7 +84,7 @@ class LanguageButton extends ConsumerWidget {
             setAppLangToStore(value).then((s) {
               ref.read(appConfigProvider.notifier).updateColors(value);
             });
-            print(value);
+            print("${value}");
             ref.read(appConfigProvider.notifier).updateValueKey(value);
           },
         );

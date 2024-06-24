@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -11,8 +12,6 @@ import '../../../data/local_value_key.dart';
 import '../../../data/notification_msg.dart';
 
 class NotificationButton extends ConsumerWidget {
-  const NotificationButton({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TODO: implement build

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:basestvgui/routers/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 import 'data/app_config.dart';
 

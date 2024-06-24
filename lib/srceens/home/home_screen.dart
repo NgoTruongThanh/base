@@ -70,29 +70,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   List<Widget> getTab(List<MenuItem> menu) {
-    List<Widget> tabs = [];
+    List<Widget> _tabs = [];
     if(menu.isNotEmpty) {
       for(MenuItem item in menu) {
         if(item.code != null) {
-          tabs.add(TabColItem(
+          _tabs.add(TabColItem(
               title: item.code!,
               isSelected: item.code!.compareTo(_pre_selectMenuBar) == 0 ? true : false
           ));
         }
       }
     }
-    return tabs;
+    return _tabs;
   }
 
   List<Widget> getBody(MenuItem? itemMenu) {
-    List<Widget> body = [];
+    List<Widget> _body = [];
     if(itemMenu == null || itemMenu.children == null || itemMenu.children!.isEmpty) {
 
     } else {
       if(itemMenu.type == null || itemMenu.type!.isEmpty) {
 
       } else if (itemMenu.type!.compareTo("base") == 0) {
-        body.add(BaseSidebar(
+        _body.add(BaseSidebar(
           items: itemMenu != null ? (itemMenu.children != null ? itemMenu.children! : []) : [] ,
           controller: _sidebarController,
           root: itemMenu != null ? (itemMenu.code != null ? itemMenu.code! : "") : "",
@@ -102,8 +102,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     }
 
-    body.add(widget.child);
-    return body;
+    _body.add(widget.child);
+    return _body;
   }
 
   @override
@@ -124,7 +124,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final appConfig = ref.watch(appConfigProvider);
 
     String? configColor = getAppColorsFromStore();
-    print(" config color : $configColor");
+    print(" config color : ${configColor}");
     AppColors? appColors;
     if(configColor != null) {
       appColors = getAppColors(configColor);
@@ -134,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     String? configLang = getAppLangFromStore();
-    print(" config Lang : $configLang");
+    print(" config Lang : ${configLang}");
     LocalValueKey? appLang;
     if(configLang != null) {
       appLang = getValueKey(configLang);
@@ -154,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(35),
           child: Material(
-            color: appColors.mainColor,
+            color: appColors!.mainColor,
             child: Row(
               children: [
                 Expanded(
@@ -167,15 +167,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const SizedBox(
                   width: 4,
                 ),
-                const NotificationButton(),
+                NotificationButton(),
                 const SizedBox(
                   width: 4,
                 ),
-                const LanguageButton(),
+                LanguageButton(),
                 const SizedBox(
                   width: 4,
                 ),
-                const AccountButton(),
+                AccountButton(),
               ],
             ),
           ),
