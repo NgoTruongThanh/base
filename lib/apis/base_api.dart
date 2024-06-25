@@ -2,6 +2,8 @@ import 'package:basestvgui/apis/user_api.dart';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+import 'config_api.dart';
+
 class BaseApi {
   final logger = Logger(
     filter: null, // Use the default LogFilter (-> only log in debug mode)
@@ -26,6 +28,6 @@ class BaseApi {
   }
 }
 
-class Api extends BaseApi with UserApi {
+class Api extends BaseApi with UserApi, ConfigApi {
   Api({required super.base_url});
 }

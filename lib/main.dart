@@ -10,7 +10,7 @@ import 'data/app_config.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   app_dataStore.initStore().then((value) {
-    initAppConfig().then((value) {
+    initAppConfigFromNetwork().then((value) {
       runApp(const ProviderScope(
         child: MyDisplay(),
       ),);

@@ -37,9 +37,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _init() {
     String currentRoute = context.currrentRoute.replaceRange(0, 1, '');
     List<String> buf = currentRoute.split('/');
+    List<MenuItem>? menus = getAppConfigMenuFromStore();
+    if(menus == null) {
+      menus = default_app_menu;
+    }
     if(buf.isNotEmpty) {
       if(buf[0].isNotEmpty) {
-        MenuItem? tmp = default_app_menu.where((s) => s.code != null && s.name != null && s.name!.compareTo(buf[0]) == 0).firstOrNull;
+        MenuItem? tmp = menus.where((s) => s.code != null && s.name != null && s.name!.compareTo(buf[0]) == 0).firstOrNull;
         if(tmp != null) {
           _pre_selectMenuBar = tmp.code!;
           if(buf.length > 1) {
@@ -58,13 +62,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           }
         }
       } else {
-        if (default_app_menu.isNotEmpty && default_app_menu[0].name != null && default_app_menu[0].name!.isNotEmpty) {
-          _pre_selectMenuBar = default_app_menu[0].code!;
+        if (menus.isNotEmpty && menus[0].name != null && menus[0].name!.isNotEmpty) {
+          _pre_selectMenuBar = menus[0].code!;
         }
       }
     } else {
-      if (default_app_menu.isNotEmpty && default_app_menu[0].name != null && default_app_menu[0].name!.isNotEmpty) {
-        _pre_selectMenuBar = default_app_menu[0].code!;
+      if (menus.isNotEmpty && menus[0].name != null && menus[0].name!.isNotEmpty) {
+        _pre_selectMenuBar = menus[0].code!;
       }
     }
   }
@@ -119,12 +123,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("Draw ...");
+    print("Home Draw ...");
     _init();
     final appConfig = ref.watch(appConfigProvider);
 
     String? configColor = getAppColorsFromStore();
-    print(" config color : ${configColor}");
     AppColors? appColors;
     if(configColor != null) {
       appColors = getAppColors(configColor);
@@ -134,7 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     String? configLang = getAppLangFromStore();
-    print(" config Lang : ${configLang}");
+    // print(" config Lang : ${configLang}");
     LocalValueKey? appLang;
     if(configLang != null) {
       appLang = getValueKey(configLang);

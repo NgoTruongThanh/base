@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart' as EncryptSys;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 
 import '../apis/base_api.dart';
 import '../utils/data_store.dart';
@@ -13,7 +12,7 @@ import 'app_menu.dart';
 import 'local_value_key.dart';
 import 'models/user.dart';
 
-const bool app_encryption = true;
+const bool app_encryption = false;
 final EncryptSys.IV app_iv = EncryptSys.IV.fromUtf8('DyPas7CdtRd1mby4');
 final EncryptSys.Key app_key = EncryptSys.Key.fromUtf8('066emyhZzpvKjKQP3PZM3SP1IdEAZoMh');
 
@@ -348,6 +347,63 @@ Future<void> initAppConfig() async {
       ),
     )
   );
+
+  String data = jsonEncode(localValueKeys.map((v) => v.toJson()).toList());
+  await app_dataStore.saveToLocal("store_values", data);
+
+  data = jsonEncode(localColors.map((v) => v.toJson()).toList());
+  await app_dataStore.saveToLocal("store_colors", data);
+
+  List<String> listCodeColors = getListCodeAppColors();
+  String? configColor = getAppColorsFromStore();
+  if(configColor == null || listCodeColors.contains(configColor) == false) {
+    configColor = listCodeColors[0];
+    await setAppColorsToStore(configColor);
+  }
+
+  List<String> listCodeValues = getListCodeValueKey();
+  String? configLang = getAppLangFromStore();
+  if(configLang == null || listCodeValues.contains(configLang) == false) {
+    configLang = listCodeValues[0];
+    await setAppLangToStore(configLang);
+  }
+}
+
+Future<void> initAppConfigFromNetwork() async {
+  //  get cfg menu
+  List<MenuItem>? cfg_menu = [];
+  cfg_menu = await app_api.getListConfigMenu();
+  if(cfg_menu == null) {
+    cfg_menu = default_app_menu;
+  }
+  setAppConfigMenuToStore(cfg_menu);
+
+  //  get cfg lang
+  List<ItemLocalValueKey>? cfg_lang = await app_api.getListConfiglang();
+  if(cfg_lang == null) {
+    cfg_lang = [];
+    cfg_lang.add(
+      ItemLocalValueKey(
+        code: "default",
+        keys: default_app_local_value_key,
+      )
+    );
+  }
+  localValueKeys.clear();
+  localValueKeys.addAll(cfg_lang);
+
+  List<ItemColors>? tmp_colors = await app_api.getListConfigColor();
+  if(tmp_colors == null) {
+    tmp_colors = [];
+    tmp_colors.add(
+      ItemColors(
+        code: "lightDisplay",
+        colors: default_app_colors,
+      )
+    );
+  }
+  localColors.clear();
+  localColors.addAll(tmp_colors);
 
   String data = jsonEncode(localValueKeys.map((v) => v.toJson()).toList());
   await app_dataStore.saveToLocal("store_values", data);
