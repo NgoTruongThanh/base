@@ -49,7 +49,7 @@ class MenuChildItem {
   }
 }
 
-final List<MenuItem> default_app_menu = [
+final List<MenuItem> defaultAppMenu= [
   MenuItem(code: "home", name: "Home", type: "base", children: []),
   MenuItem(code: "tab1", name: "Tab1", type: "base", children: [
     MenuChildItem(code: "item_1_1", name: "Item1In1"),
@@ -59,30 +59,5 @@ final List<MenuItem> default_app_menu = [
   MenuItem(code: "tab2", name: "Tab2", type: "base", children: [
     MenuChildItem(code: "item_2_1", name: "Item2In1"),
     MenuChildItem(code: "item_2_2", name: "Item2In2"),
-    MenuChildItem(code: "item_2_3", name: "Item2In3"),
-    MenuChildItem(code: "item_2_4", name: "Item2In4"),
   ]),
 ];
-
-// class AppMenuNotifier extends Notifier<List<MenuItem>> {
-//   @override
-//   List<MenuItem> build() {
-//     // TODO: implement build
-//     return [];
-//   }
-//
-//   void update(List<MenuItem> items) {
-//     state = items;
-//   }
-//
-// }
-//
-// final appMenuNotifier = NotifierProvider<AppMenuNotifier, List<MenuItem>>(AppMenuNotifier.new);
-//
-// final selectMenuBarProvider = StateProvider<String>((ref) {
-//   return "";
-// });
-//
-// final selectSideBarProvider = StateProvider<String>((ref) {
-//   return "";
-// });

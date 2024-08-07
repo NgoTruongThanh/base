@@ -143,8 +143,5 @@ List<String> getListCodeAppColors() {
 
 AppColors? getAppColors(String code) {
   ItemColors? item = localColors.where((s) => s.code.compareTo(code) == 0).firstOrNull;
-  if(item == null) {
-    return null;
-  }
-  return item.colors;
+  return item?.colors;
 }

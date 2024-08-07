@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -8,9 +9,9 @@ import '../data/local_value_key.dart';
 import 'base_api.dart';
 
 mixin ConfigApi on BaseApi {
-  static const String PATH_CFG_COLOR = "/Config/color";
-  static const String PATH_CFG_LANG = "/Config/lang";
-  static const String PATH_CFG_MENU = "/Config/menu";
+  static const String pathCfgColor = "/Config/color";
+  static const String patchCfgLang  = "/Config/lang";
+  static const String patchCfgMenu = "/Config/menu";
 
   Future<List<ItemColors>?> getListConfigColor() async {
     try {
@@ -18,10 +19,10 @@ mixin ConfigApi on BaseApi {
       headers['Content-Type'] = 'application/json';
       headers['accept'] = '*/*';
 
-      Response response = await dio.get(PATH_CFG_COLOR, options: Options(headers: headers));
+      Response response = await dio.get(pathCfgColor, options: Options(headers: headers));
       if (response.statusCode == 200) {
         logger.i(" API_LIST_CONFIG_COLOR : ${response.toString()} ");
-        List tmp = response.data as List;
+        List tmp = jsonDecode(response.data) as List;
         List<ItemColors> items = tmp.map((item) => ItemColors.fromJson(item)).toList();
         return items;
       } else {
@@ -39,10 +40,10 @@ mixin ConfigApi on BaseApi {
       headers['Content-Type'] = 'application/json';
       headers['accept'] = '*/*';
 
-      Response response = await dio.get(PATH_CFG_LANG, options: Options(headers: headers));
+      Response response = await dio.get(patchCfgLang, options: Options(headers: headers));
       if (response.statusCode == 200) {
         logger.i(" API_LIST_CONFIG_LANG : ${response.toString()} ");
-        List tmp = response.data as List;
+        List tmp = jsonDecode(response.data) as List;
         List<ItemLocalValueKey> items = tmp.map((item) => ItemLocalValueKey.fromJson(item)).toList();
         return items;
       } else {
@@ -60,7 +61,7 @@ mixin ConfigApi on BaseApi {
       headers['Content-Type'] = 'application/json';
       headers['accept'] = '*/*';
 
-      Response response = await dio.get(PATH_CFG_MENU, options: Options(headers: headers));
+      Response response = await dio.get(patchCfgMenu);
       if (response.statusCode == 200) {
         logger.i(" API_LIST_CONFIG_MENU : ${response.toString()} ");
         List tmp = response.data as List;

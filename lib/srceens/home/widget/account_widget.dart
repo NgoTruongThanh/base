@@ -4,52 +4,18 @@ import 'package:go_router/go_router.dart';
 
 import '../../../data/app_color.dart';
 import '../../../data/app_config.dart';
-import '../../../data/local_value_key.dart';
-import '../../../data/models/user.dart';
+import '../../../data/app_provider.dart';
 
 class AccountButton extends ConsumerWidget{
   const AccountButton({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // const String displayUser = "Admin";
-
-    String? configColor = getAppColorsFromStore();
-    AppColors? appColors;
-    if(configColor != null) {
-      appColors = getAppColors(configColor);
-      appColors ??= default_app_colors;
-    } else {
-      appColors = default_app_colors;
-    }
-
-    String? configLang = getAppLangFromStore();
-    LocalValueKey? appLang;
-    if(configLang != null) {
-      appLang = getValueKey(configLang);
-      appLang ??= default_app_local_value_key;
-    } else {
-      appLang = default_app_local_value_key;
-    }
-
-    String txt_theme = "";
-    if(configColor != null) {
-      Map<String, dynamic> store = appLang.toJson();
-      MapEntry? entry = store.entries.where((s) => s.key.compareTo(configColor) == 0).firstOrNull;
-      if (entry != null) {
-        txt_theme = entry.value.toString();
-      } else {
-        txt_theme = configColor!;
-      }
-    }
-
-
-    User? user = getUserFromStore();
-
+    final appColors = ref.watch(getAppColor);
     return MenuAnchor(
       style: MenuStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) {
-            return appColors!.mainColor;
+            return appColors.mainColor;
           }
         ),
       ),
@@ -62,10 +28,10 @@ class AccountButton extends ConsumerWidget{
               controller.open();
             },
             style: TextButton.styleFrom(
-              foregroundColor: appColors!.accountColor,
+              foregroundColor: appColors.accountColor,
             ),
             label: Text(
-              user != null ? user.name : "",
+              getUserFromStore()?.name ?? "",
               textWidthBasis: TextWidthBasis.parent,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -82,7 +48,7 @@ class AccountButton extends ConsumerWidget{
       menuChildren: [
         MenuItemButton(
           child: Text(
-            txt_theme,
+            themeTitle,
             style: TextStyle(
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.bold,
@@ -91,17 +57,17 @@ class AccountButton extends ConsumerWidget{
           ),
           onPressed: () {
             List<String> tmps = getListCodeAppColors();
-            String? tmp = tmps.where((s) => s.compareTo(configColor!) != 0).firstOrNull;
+            String? tmp = tmps.where((s) => s.compareTo(themeTitle) != 0).firstOrNull;
             if(tmp != null) {
               setAppColorsToStore(tmp).then((value) {
-                ref.read(appConfigProvider.notifier).updateColors(tmp);
+                ref.invalidate(getAppColor);
               });
             }
           },
         ),
         MenuItemButton(
           child: Text(
-            appLang.logout,
+            ref.watch(configLanguageProvider).logout,
             style: TextStyle(
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.bold,

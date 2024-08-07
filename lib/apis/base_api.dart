@@ -1,8 +1,9 @@
-import 'package:basestvgui/apis/user_api.dart';
+import 'package:basestvgui/apis/account_api.dart';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
 import 'config_api.dart';
+import 'custom_interceptor.dart';
 
 class BaseApi {
   final logger = Logger(
@@ -18,16 +19,22 @@ class BaseApi {
     output: null, // Use the default LogOutput (-> send everything to console)
   );
 
-  String base_url = "";
+  String baseUrl = "http://office.stvg.vn:59109";
   late Dio dio;
   bool enable = false;
-  BaseApi({
-    required this.base_url
-  }) {
-    dio = Dio(BaseOptions(baseUrl: base_url, headers: {"Access-Control-Allow-Origin": "*"}));
+  CancelToken? cancelToken;
+  BaseApi() {
+    dio = Dio(BaseOptions(baseUrl: baseUrl, headers: {"Access-Control-Allow-Origin": "*"}));
+    dio.interceptors.add(CustomInterceptors());
+  }
+  void cancelPreviousRequest() {
+    if (cancelToken != null && !cancelToken!.isCancelled) {
+      cancelToken!.cancel("Canceled by new request");
+    }
+    cancelToken = CancelToken();
   }
 }
 
-class Api extends BaseApi with UserApi, ConfigApi {
-  Api({required super.base_url});
+class Api extends BaseApi with AccountApi, ConfigApi {
+  Api();
 }

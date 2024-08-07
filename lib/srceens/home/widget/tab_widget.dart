@@ -1,12 +1,8 @@
+import 'package:basestvgui/data/app_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../data/app_color.dart';
-import '../../../data/app_config.dart';
-import '../../../data/app_menu.dart';
-import '../../../data/local_value_key.dart';
 
 class TabColItem extends ConsumerWidget {
   final String title;
@@ -15,32 +11,7 @@ class TabColItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    String? configColor = getAppColorsFromStore();
-    AppColors? appColors;
-    if(configColor != null) {
-      appColors = getAppColors(configColor);
-      appColors ??= default_app_colors;
-    } else {
-      appColors = default_app_colors;
-    }
-
-    String? configLang = getAppLangFromStore();
-    LocalValueKey? appLang;
-    if(configLang != null) {
-      appLang = getValueKey(configLang);
-      appLang ??= default_app_local_value_key;
-    } else {
-      appLang = default_app_local_value_key;
-    }
-
-    Map<String, dynamic> store = appLang.toJson();
-    MapEntry? entry = store.entries.where((s) => s.key.compareTo(title) == 0).firstOrNull;
-    String txt = title;
-    if (entry != null) {
-      txt = entry.value.toString();
-    }
-
+    final appColors = ref.watch(getAppColor);
     return InkWell(
       onTap: () {
         context.goNamed(title);
@@ -65,8 +36,7 @@ class TabColItem extends ConsumerWidget {
           ),
         ),
         child: Text(
-          txt,
-          //keys(title == null ? title : _store[title]!,
+          ref.watch(getTextLanguageProvider(title))  ,
           style: TextStyle(
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.bold,

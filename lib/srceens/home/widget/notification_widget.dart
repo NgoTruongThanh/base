@@ -2,37 +2,21 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-import '../../../data/app_color.dart';
-import '../../../data/app_config.dart';
-import '../../../data/local_value_key.dart';
+import '../../../data/app_provider.dart';
 import '../../../data/notification_msg.dart';
 
 class NotificationButton extends ConsumerWidget {
+  const NotificationButton({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
+    final appColors = ref.watch(getAppColor);
 
-    String? configColor = getAppColorsFromStore();
-    AppColors? appColors;
-    if(configColor != null) {
-      appColors = getAppColors(configColor);
-      appColors ??= default_app_colors;
-    } else {
-      appColors = default_app_colors;
-    }
 
-    String? configLang = getAppLangFromStore();
-    LocalValueKey? appLang;
-    if(configLang != null) {
-      appLang = getValueKey(configLang);
-      appLang ??= default_app_local_value_key;
-    } else {
-      appLang = default_app_local_value_key;
-    }
+
 
     return MenuAnchor(
       onClose: () {
@@ -66,7 +50,7 @@ class NotificationButton extends ConsumerWidget {
       ],
       builder: (context, controller, child) {
         return IconButton(
-          color: appColors!.accountColor,
+          color: appColors.accountColor,
           icon: const Icon(Icons.notifications),
           onPressed: () {
             if (controller.isOpen) {

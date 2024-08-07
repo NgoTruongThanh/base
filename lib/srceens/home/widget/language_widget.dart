@@ -1,31 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/app_color.dart';
 import '../../../data/app_config.dart';
+import '../../../data/app_provider.dart';
 import '../../../data/local_value_key.dart';
 
 class LanguageButton extends ConsumerWidget {
-  LanguageButton({super.key});
-
-  @override
-  createState() {
-    // TODO: implement createState
-    return super.createState();
-  }
+  const LanguageButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    String? configColor = getAppColorsFromStore();
-    AppColors? appColors;
-    if(configColor != null) {
-      appColors = getAppColors(configColor);
-      appColors ??= default_app_colors;
-    } else {
-      appColors = default_app_colors;
-    }
+    final appColors = ref.watch(getAppColor);
 
     String? configLang = getAppLangFromStore();
     LocalValueKey? appLang;
@@ -40,7 +25,7 @@ class LanguageButton extends ConsumerWidget {
     return MenuAnchor(
       style: MenuStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
-          return appColors!.mainColor;
+          return appColors.mainColor;
         }
         ),
       ),
@@ -53,7 +38,7 @@ class LanguageButton extends ConsumerWidget {
               controller.open();
             },
             style: TextButton.styleFrom(
-              foregroundColor: appColors!.accountColor,
+              foregroundColor: appColors.accountColor,
             ),
             label: Text(
               configLang!,
@@ -64,7 +49,7 @@ class LanguageButton extends ConsumerWidget {
               style: TextStyle(
                 fontStyle: FontStyle.normal,
                 fontWeight: FontWeight.bold,
-                color: appColors!.accountTextColor,
+                color: appColors.accountTextColor,
               ),
             ),
           ),
@@ -77,14 +62,13 @@ class LanguageButton extends ConsumerWidget {
             style: TextStyle(
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.bold,
-              color: appColors!.accountTextColor,
+              color: appColors.accountTextColor,
             ),
           ),
           onPressed: () {
             setAppLangToStore(value).then((s) {
-              ref.read(appConfigProvider.notifier).updateColors(value);
+              ref.invalidate(configLanguageProvider);
             });
-            print("${value}");
             ref.read(appConfigProvider.notifier).updateValueKey(value);
           },
         );

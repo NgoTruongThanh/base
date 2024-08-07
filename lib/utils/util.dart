@@ -1,11 +1,16 @@
-import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 Color convertColorFromString(String data) {
-  // String valueString = data.split('(0x')[1].split(')')[0];
-  // int value = int.parse(valueString, radix: 16);
-  // return Color(value);
-  int value = int.parse(data, radix: 16);
-  return Color(value);
+  try{
+    int value = int.parse(data, radix: 16);
+    return Color(value);
+  }
+  catch(e)
+  {
+    return Colors.black;
+  }
+
 }
 
 String convertColorToString(Color color) {

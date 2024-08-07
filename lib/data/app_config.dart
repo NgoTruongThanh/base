@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:encrypt/encrypt.dart' as EncryptSys;
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../apis/base_api.dart';
 import '../utils/data_store.dart';
 import 'app_color.dart';
 import 'app_menu.dart';
+import 'app_provider.dart';
 import 'local_value_key.dart';
-import 'models/user.dart';
+import 'models/account.dart';
+import 'models/config.dart';
 
 const bool app_encryption = false;
 final EncryptSys.IV app_iv = EncryptSys.IV.fromUtf8('DyPas7CdtRd1mby4');
@@ -18,21 +19,7 @@ final EncryptSys.Key app_key = EncryptSys.Key.fromUtf8('066emyhZzpvKjKQP3PZM3SP1
 
 final DataStore app_dataStore = DataStore(key: app_key, iv: app_iv, isEncryption: app_encryption);
 
-List<MenuItem>? getAppConfigMenuFromStore() {
-  try {
-    final String? data = app_dataStore.loadFromLocal("cfg_menu");
-    if(data == null) {
-      return null;
-    }
-    final List<dynamic> tmp = jsonDecode(data);
-    final List<MenuItem> items = tmp.map((item) => MenuItem.fromJson(item)).toList();
-    return items;
-  } catch (e) {
-    print(e);
-    return null;
-  }
-}
-
+/// Save menu config to local storage
 Future<bool> setAppConfigMenuToStore(List<MenuItem> items) async {
   try {
     String data = jsonEncode(items);
@@ -45,6 +32,7 @@ Future<bool> setAppConfigMenuToStore(List<MenuItem> items) async {
   }
 }
 
+/// Get language from local storage
 String? getAppLangFromStore() {
   try {
     final String? data = app_dataStore.loadFromLocal("cfg_lang");
@@ -58,6 +46,7 @@ String? getAppLangFromStore() {
   }
 }
 
+/// Set language to local storage
 Future<bool> setAppLangToStore(String item) async {
   try {
     return app_dataStore.saveToLocal("cfg_lang", item).then((value) {
@@ -68,6 +57,8 @@ Future<bool> setAppLangToStore(String item) async {
     return false;
   }
 }
+
+/// Get color from local storage
 
 String? getAppColorsFromStore() {
   try {
@@ -81,7 +72,17 @@ String? getAppColorsFromStore() {
     return null;
   }
 }
+/*AppColors getAppColorsFromStore() {
+  try {
+    final String? data = app_dataStore.loadFromLocal("cfg_colors");
+    AppColors? appColors = getAppColors(data!);
+    return  appColors ?? default_app_colors;
+  } catch (e) {
+    return default_app_colors;
+  }
+}*/
 
+/// Set color to local storage
 Future<bool> setAppColorsToStore(String item) async {
   try {
     return app_dataStore.saveToLocal("cfg_colors", item).then((value) {
@@ -93,21 +94,23 @@ Future<bool> setAppColorsToStore(String item) async {
   }
 }
 
-User? getUserFromStore() {
+/// Get user from local storage
+Account? getUserFromStore() {
   try {
     final String? data = app_dataStore.loadFromLocal("user");
     if(data == null) {
       return null;
     }
     Map<String, dynamic> map = jsonDecode(data);
-    return User.fromJson(map);
+    return Account.fromJson(map);
   } catch (e) {
     print(e);
     return null;
   }
 }
 
-Future<bool> setUserToStore(User user) async {
+/// Set user to local storage
+Future<bool> setUserToStore(Account user) async {
   try {
     String data = jsonEncode(user);
     return app_dataStore.saveToLocal("user", data).then((value) {
@@ -119,6 +122,7 @@ Future<bool> setUserToStore(User user) async {
   }
 }
 
+/// Get user from local storage
 Future<bool> clearUserStore() async {
   try {
     return app_dataStore.deleteLocal("user").then((value) {
@@ -130,61 +134,27 @@ Future<bool> clearUserStore() async {
   }
 }
 
-class AppConfig {
-  List<MenuItem> cfgMenu = [];
-  String cfgValueKey;
-  String cfgColors;
 
-  AppConfig({required this.cfgMenu, required this.cfgValueKey, required this.cfgColors});
 
-  void setConfigMenu(List<MenuItem> items) {
-    cfgMenu = items;
-  }
-
-  List<MenuItem> getConfigMenu() {
-    return cfgMenu;
-  }
-
-  void setConfigValueKey(String item) {
-    cfgValueKey = item;
-  }
-
-  String getConfigValueKey() {
-    return cfgValueKey;
-  }
-
-  void setConfigColors(String item) {
-    cfgColors = item;
-  }
-
-  String getConfigColors() {
-    return cfgColors;
-  }
-}
 
 class AppConfigNotifier extends Notifier<AppConfig> {
   @override
   AppConfig build() {
-    // TODO: implement build
-    List<MenuItem>? app_menu = getAppConfigMenuFromStore();
-    app_menu ??= default_app_menu;
 
-    String? app_value = getAppLangFromStore();
-    if(app_value == null) {
+    final appColors = ref.watch(getAppColor);
+    // Get menu from configMenuProvider
+    List<MenuItem> appMenu = ref.read(configMenuProvider);
+
+    String? appValue = getAppLangFromStore();
+    if(appValue == null) {
       List<String> tmps = getListCodeValueKey();
       if(tmps.isNotEmpty) {
-        app_value = tmps[0];
+        appValue = tmps[0];
       }
     }
 
-    String? app_colors = getAppColorsFromStore();
-    if(app_colors == null) {
-      List<String> tmps = getListCodeAppColors();
-      if(tmps.isNotEmpty) {
-        app_colors = tmps[0];
-      }
-    }
-    return AppConfig(cfgMenu: app_menu!, cfgValueKey: app_value!, cfgColors: app_colors!);
+
+    return AppConfig(cfgMenu: appMenu, cfgValueKey: appValue!, cfgColors: appColors);
   }
 
   void updateMenu(List<MenuItem> items) {
@@ -192,7 +162,7 @@ class AppConfigNotifier extends Notifier<AppConfig> {
     // state.cfgMenu = items;
   }
 
-  void updateColors(String item) {
+  void updateColors(AppColors item) {
     state = AppConfig(cfgMenu: state.cfgMenu, cfgValueKey: state.cfgValueKey, cfgColors: item);
     //state.cfgColors = item;
   }
@@ -209,23 +179,23 @@ class AppConfigNotifier extends Notifier<AppConfig> {
 
 final appConfigProvider = NotifierProvider<AppConfigNotifier, AppConfig>(AppConfigNotifier.new);
 
-final Api app_api = Api(base_url: "https://dev.smartlook.com.vn:59108");
+final Api app_api = Api();
 
-class UserController extends AutoDisposeAsyncNotifier<User?> {
+class UserController extends AutoDisposeAsyncNotifier<Account?> {
   UserController() : super();
 
   @override
-  FutureOr<User?> build() {
+  FutureOr<Account?> build() {
     // TODO: implement build
-    User? _user = getUserFromStore();
-    state = AsyncData(_user);
-    return _user;
+    Account? user = getUserFromStore();
+    state = AsyncData(user);
+    return user;
   }
 
   Future<void> login(String username, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      User? user = await app_api?.login(username, password);
+      Account? user = await app_api.login(username, password);
       if(user != null) {
         await setUserToStore(user);
       }
@@ -234,11 +204,11 @@ class UserController extends AutoDisposeAsyncNotifier<User?> {
   }
 
   Future<void> renewToken() async {
-    User? tmpUser = state.value;
-    if(tmpUser != null && tmpUser.token != null && tmpUser.token!.isNotEmpty) {
+    Account? tmpUser = state.value;
+    if(tmpUser != null && tmpUser.token.isNotEmpty) {
       state = const AsyncLoading();
       state = await AsyncValue.guard(() async {
-        User? user = await app_api?.renewToken(tmpUser.token!);
+        Account? user = await app_api.renewToken(tmpUser.token);
         if(user != null) {
           await setUserToStore(user);
         }
@@ -248,12 +218,12 @@ class UserController extends AutoDisposeAsyncNotifier<User?> {
   }
 }
 
-final userControllerProvider = AsyncNotifierProvider.autoDispose<UserController,User?>(() {
+final userControllerProvider = AsyncNotifierProvider.autoDispose<UserController,Account?>(() {
   return UserController();
 });
 
-Future<void> initAppConfig() async {
-  setAppConfigMenuToStore(default_app_menu);
+/*Future<void> initAppConfig() async {
+  setAppConfigMenuToStore(defaultAppMenu);
   localValueKeys.add(
     ItemLocalValueKey(
       code: "en",
@@ -354,12 +324,12 @@ Future<void> initAppConfig() async {
   data = jsonEncode(localColors.map((v) => v.toJson()).toList());
   await app_dataStore.saveToLocal("store_colors", data);
 
-  List<String> listCodeColors = getListCodeAppColors();
-  String? configColor = getAppColorsFromStore();
-  if(configColor == null || listCodeColors.contains(configColor) == false) {
-    configColor = listCodeColors[0];
-    await setAppColorsToStore(configColor);
-  }
+  // List<String> listCodeColors = getListCodeAppColors();
+  // String? configColor = getAppColorsFromStore();
+  // if(configColor == null || listCodeColors.contains(configColor) == false) {
+  //   configColor = listCodeColors[0];
+  //   await setAppColorsToStore(configColor);
+  // }
 
   List<String> listCodeValues = getListCodeValueKey();
   String? configLang = getAppLangFromStore();
@@ -367,22 +337,20 @@ Future<void> initAppConfig() async {
     configLang = listCodeValues[0];
     await setAppLangToStore(configLang);
   }
-}
+}*/
 
 Future<void> initAppConfigFromNetwork() async {
   //  get cfg menu
-  List<MenuItem>? cfg_menu = [];
-  cfg_menu = await app_api.getListConfigMenu();
-  if(cfg_menu == null) {
-    cfg_menu = default_app_menu;
-  }
-  setAppConfigMenuToStore(cfg_menu);
+  List<MenuItem>? cfgMenu = [];
+  cfgMenu = await app_api.getListConfigMenu();
+  cfgMenu ??= defaultAppMenu;
+  setAppConfigMenuToStore(cfgMenu);
 
   //  get cfg lang
-  List<ItemLocalValueKey>? cfg_lang = await app_api.getListConfiglang();
-  if(cfg_lang == null) {
-    cfg_lang = [];
-    cfg_lang.add(
+  List<ItemLocalValueKey>? cfgLang = await app_api.getListConfiglang();
+  if(cfgLang == null) {
+    cfgLang = [];
+    cfgLang.add(
       ItemLocalValueKey(
         code: "default",
         keys: default_app_local_value_key,
@@ -390,12 +358,12 @@ Future<void> initAppConfigFromNetwork() async {
     );
   }
   localValueKeys.clear();
-  localValueKeys.addAll(cfg_lang);
+  localValueKeys.addAll(cfgLang);
 
-  List<ItemColors>? tmp_colors = await app_api.getListConfigColor();
-  if(tmp_colors == null) {
-    tmp_colors = [];
-    tmp_colors.add(
+  List<ItemColors>? tmpColors = await app_api.getListConfigColor();
+  if(tmpColors == null) {
+    tmpColors = [];
+    tmpColors.add(
       ItemColors(
         code: "lightDisplay",
         colors: default_app_colors,
@@ -403,7 +371,7 @@ Future<void> initAppConfigFromNetwork() async {
     );
   }
   localColors.clear();
-  localColors.addAll(tmp_colors);
+  localColors.addAll(tmpColors);
 
   String data = jsonEncode(localValueKeys.map((v) => v.toJson()).toList());
   await app_dataStore.saveToLocal("store_values", data);
@@ -424,4 +392,5 @@ Future<void> initAppConfigFromNetwork() async {
     configLang = listCodeValues[0];
     await setAppLangToStore(configLang);
   }
+
 }

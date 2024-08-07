@@ -1,4 +1,4 @@
-class User {
+class Account {
   String code = "";
   String name = "";
   String des = "";
@@ -7,7 +7,7 @@ class User {
   String phone = "";
   int expirationTime = 0;
 
-  User({
+  Account({
     required this.code,
     required this.name,
     required this.des,
@@ -17,7 +17,7 @@ class User {
     required this.expirationTime,
   });
 
-  User.fromJson(Map<String, dynamic> json) {
+  Account.fromJson(Map<String, dynamic> json) {
     code = json['code'];
     name = json['name'];
     des = json['des'];

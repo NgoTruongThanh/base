@@ -3,12 +3,12 @@ import 'dart:ui';
 import 'package:basestvgui/routers/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 
 import 'data/app_config.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   app_dataStore.initStore().then((value) {
     initAppConfigFromNetwork().then((value) {
       runApp(const ProviderScope(
@@ -16,21 +16,12 @@ void main() {
       ),);
     });
   });
-  // runApp(const MyApp());
 }
 
 class MyDisplay extends ConsumerWidget {
   const MyDisplay({super.key});
   @override
-  createState() {
-    // TODO: implement createState
-    return super.createState();
-  }
-
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    // final goRouter = ref.watch(goRouterProvider);
     return MaterialApp.router(
       scrollBehavior: const ScrollBehavior().copyWith(
         dragDevices: {
@@ -41,16 +32,8 @@ class MyDisplay extends ConsumerWidget {
         overscroll: true,
       ),
       title: 'Base Code',
-      // localizationsDelegates: [
-      //   ...context.localizationDelegates,
-      //   SfLocalizationsViDelegate(),
-      //   SfGlobalLocalizations.delegate,
-      // ],
-      //supportedLocales: context.supportedLocales,
-      //locale: context.locale,
-      //theme: getTheme(appColors),
       debugShowCheckedModeBanner: false,
-      routerConfig: system_router,
+      routerConfig: ref.read(goRouterProvider),
     );
   }
 }
