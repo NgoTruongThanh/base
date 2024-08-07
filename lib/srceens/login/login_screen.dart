@@ -1,13 +1,16 @@
 import 'package:basestvgui/data/app_provider.dart';
+import 'package:basestvgui/srceens/login/widget/auth_input.dart';
 import 'package:basestvgui/utils/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
+import '../../data/app_assets.dart';
 import '../../data/app_config.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen ({
+  const LoginScreen({
     super.key,
   });
 
@@ -16,172 +19,136 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  bool isSignIn = false;
-  TextEditingController username = TextEditingController();
-  TextEditingController password = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final ValueNotifier<bool> obscureText = ValueNotifier(true);
+  String _userName = '';
+  String _password = '';
 
-  String txt_tilte = "login";
-  String txt_username = "username";
-  String txt_password = "password";
-  String txt_bt_signin = "btLogin";
+  @override
+  void dispose() {
+    obscureText.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final appColors = ref.watch(getAppColor);
+    final appTrans = ref.watch(configLanguageProvider);
     return Scaffold(
-      backgroundColor: appColors.mainColor,
       body: Stack(
+        alignment: Alignment.topRight,
         children: [
-          Container(
-            padding: const EdgeInsets.only(
-                left: 35,
-                top: 130
-            ),
-            child: Text(
-              ref.watch(getTextLanguageProvider(txt_tilte)),
-              style: TextStyle(
-                color: appColors.textColor,
-                fontSize: 33,
-                fontStyle: FontStyle.normal,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.5
-              ),
-              child: Center(
-                child: Column(
-                  children: [
-                    SizedBox (
-                      width: 300.0,
-                      child: TextField(
-                        controller: username,
-                        style: TextStyle(
-                          color: appColors.textColor,
-                          fontStyle: FontStyle.normal,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: InputDecoration(
-                            fillColor: appColors.selectedColor,
-                            filled: true,
-                            hintText: ref.watch(getTextLanguageProvider(txt_username)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    SizedBox (
-                      width: 300.0,
-                      child: TextField(
-                        controller: password,
-                        style: TextStyle(
-                          color: appColors.textColor,
-                          fontStyle: FontStyle.normal,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        obscureText: true,
-                        decoration: InputDecoration(
-                            fillColor: appColors.selectedColor,
-                            filled: true,
-                            hintText: txt_password,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    Consumer(
-                      builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                        final useState = ref.watch(userControllerProvider);
-                        return SizedBox(
-                          width: 250.0,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: appColors.buttonColor, // background (button) color
-                              foregroundColor: appColors.selectedColor, // foreground (text) color
-                            ),
-                            onPressed: () {
-                              isSignIn = true;
-                              ref.read(userControllerProvider.notifier).login(username.text, password.text);
-                              useState.when(
-                                data: (value) {
-                                  print("$value");
-                                  if(value == null) {
-                                    if(isSignIn) {
-                                      Future.delayed(const Duration(milliseconds: 100),() {
-                                        context.showFailureToast(
-                                          title: 'appLang!.msg_title_login_fail',
-                                          description: 'appLang!.msg_description_login_fail',
-                                        );
-                                      });
-                                    }
-                                    return Text (
-                                      txt_bt_signin,
-                                      style: TextStyle(
-                                        color: appColors.textColor,
-                                        fontStyle: FontStyle.normal,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    );
-                                  } else {
-                                    Future.delayed(const Duration(milliseconds: 100), () {
-                                      context.goNamed("home", extra: true);
-                                      context.showSuccessToast(
-                                        title: 'appLang!.msg_title_login_success',
-                                        description: 'appLang!.msg_description_login_success + " ${value.name}"',
-                                      );
-                                    });
-                                    return const CircularProgressIndicator();
-                                    // return Text (
-                                    //   txt_bt_signin,
-                                    //   style: TextStyle(
-                                    //     color: appColors!.textColor,
-                                    //     fontStyle: FontStyle.normal,
-                                    //     fontWeight: FontWeight.bold,
-                                    //   ),
-                                    // );
-                                  }
-                                },
-                                error: (e, st) {
-                                  Future.delayed(const Duration(milliseconds: 100), () {
-                                    context.showFailureToast(
-                                      title: "Login Fail",
-                                      description: "Try again",
-                                    );
-                                  });
-                                  return Text (
-                                    txt_bt_signin,
-                                    style: TextStyle(
-                                      color: appColors.textColor,
-                                      fontStyle: FontStyle.normal,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  );
-                                },
-                                loading: () {
-                                  return const CircularProgressIndicator();
-                                },
-                              );
-                            },
-                            child: const Text('data'),
+          /*Container(
+            padding: const EdgeInsets.all(4),
+            color: Colors.black26,
+            child: const LanguageDropDown(),
+          ),*/
+          Center(
+            child: SingleChildScrollView(
+              child: FractionallySizedBox(
+                widthFactor: getValueForScreenType<double>(
+                  context: context,
+                  mobile: 1,
+                  desktop: 0.5,
+                  tablet: 0.8,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image(
+                          image: AssetImage(
+                            bigLogoDark,
                           ),
-                        );
-                      },
-                    ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                  ],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AuthInput(
+                              title: appTrans.username,
+                              hintText: appTrans.username,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  // return LocaleKeys.pleaseInputFullInfo.tr(context: context);
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                _userName = value!.trim();
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            ValueListenableBuilder(
+                              valueListenable: obscureText,
+                              builder: (context, value, child) {
+                                return AuthInput(
+                                  title: appTrans.password,
+                                  hintText: appTrans.password,
+                                  obscureText: value,
+                                  // Sử dụng thuộc tính này
+                                  icon: IconButton(
+                                    onPressed: () {
+                                      obscureText.value = !value;
+                                    },
+                                    icon: Icon(
+                                      !value ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      // return LocaleKeys.pleaseInputFullInfo.tr(context: context);
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (value) {
+                                    _password = value!.trim();
+                                  },
+                                  onFieldSubmitted: (value) => _onLogin(),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            Consumer(
+                              builder: (context, ref, child) {
+                                final state = ref.watch(userControllerProvider);
+                                return ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: state.isLoading ? null : _onLogin,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Builder(
+                                      builder: (_) {
+                                        if (state.isLoading) {
+                                          return const CircularProgressIndicator.adaptive();
+                                        }
+                                        return Text(
+                                          appTrans.login,
+                                          // style: textTheme.titleLarge,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -189,5 +156,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _onLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+
+    await ref.read(userControllerProvider.notifier).login(_userName, _password);
+
+
+    if (mounted && getUserFromStore() != null) {
+      context.goNamed("home", extra: true);
+      context.showSuccessToast(
+        title: 'appLang!.msg_title_login_success',
+        description: 'appLang!.msg_description_login_success + ""',
+      );
+    }
+
+    if (ref.read(userControllerProvider).hasError || getUserFromStore() == null) {
+      if (mounted) {
+        context.showFailureToast(
+          title: "Login Fail",
+          description: "Try again",
+        );
+      }
+    }
   }
 }

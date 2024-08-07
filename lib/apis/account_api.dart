@@ -17,7 +17,6 @@ mixin AccountApi on BaseApi {
 
       Response response = await dio.post(PATH_LOGIN, options: Options(headers: headers), data: body,cancelToken: cancelToken);
       if (response.statusCode == 200) {
-        logger.i(" API_USER_LOGIN : ${response.data} ");
         Account account = Account.fromJson(response.data);
         if(account.token.isEmpty) {
           return account;
@@ -28,7 +27,6 @@ mixin AccountApi on BaseApi {
         return null;
       }
     } catch(e) {
-      logger.e(" * API_USER_LOGIN : ${e.toString()} ");
       return null;
     }
   }
@@ -41,7 +39,6 @@ mixin AccountApi on BaseApi {
       headers['Authorization'] = "Bearer $token";
       Response response = await dio.put(PATH_RENEWTOKEN, options: Options(headers: headers), data: null);
       if (response.statusCode == 200) {
-        logger.i(" API_USER_RENEWTOKEN : ${response.data} ");
         Account account = Account.fromJson(response.data);
         if(account.token.isEmpty) {
           return account;
@@ -52,7 +49,6 @@ mixin AccountApi on BaseApi {
         return null;
       }
     } catch(e) {
-      logger.e(" * API_USER_RENEWTOKEN : ${e.toString()} ");
       return null;
     }
   }

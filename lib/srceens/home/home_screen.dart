@@ -1,4 +1,3 @@
-
 import 'package:basestvgui/srceens/home/widget/account_widget.dart';
 import 'package:basestvgui/srceens/home/widget/base_sidebar_widget.dart';
 import 'package:basestvgui/srceens/home/widget/language_widget.dart';
@@ -9,14 +8,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../data/app_assets.dart';
 import '../../data/app_config.dart';
 import '../../data/app_menu.dart';
 import '../../data/app_provider.dart';
+import '../login/widget/multiple_button_nav_bar.dart';
+import '../login/widget/single_button_nav_bar.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final Widget child;
 
-  const HomeScreen ({
+  const HomeScreen({
     super.key,
     required this.child,
   });
@@ -34,20 +36,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     String currentRoute = context.currrentRoute.replaceRange(0, 1, '');
     List<String> buf = currentRoute.split('/');
     List<MenuItem> menus = ref.read(configMenuProvider);
-    if(buf.isNotEmpty) {
-      if(buf[0].isNotEmpty) {
+    if (buf.isNotEmpty) {
+      if (buf[0].isNotEmpty) {
         MenuItem? tmp = menus.where((s) => s.code != null && s.name != null && s.name!.compareTo(buf[0]) == 0).firstOrNull;
-        if(tmp != null) {
+        if (tmp != null) {
           _pre_selectMenuBar = tmp.code!;
-          if(buf.length > 1) {
-            if(tmp.children != null && tmp.children!.isNotEmpty) {
+          if (buf.length > 1) {
+            if (tmp.children != null && tmp.children!.isNotEmpty) {
               MenuChildItem? temp = tmp.children!.where((s) => s.name != null && s.name!.compareTo(buf[1]) == 0).firstOrNull;
-              if(temp != null && temp.code != null && temp.code!.isNotEmpty) {
+              if (temp != null && temp.code != null && temp.code!.isNotEmpty) {
                 _sidebarController.selectIndex(tmp.children!.indexOf(temp));
               }
             }
           } else {
-            if(tmp.children != null && tmp.children!.isNotEmpty) {
+            if (tmp.children != null && tmp.children!.isNotEmpty) {
               _sidebarController.selectIndex(0);
             }
           }
@@ -57,8 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _pre_selectMenuBar = menus[0].code!;
         }
       }
-    }
-    else {
+    } else {
       if (menus.isNotEmpty && menus[0].name != null && menus[0].name!.isNotEmpty) {
         _pre_selectMenuBar = menus[0].code!;
       }
@@ -67,13 +68,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   List<Widget> getTab(List<MenuItem> menu) {
     List<Widget> tabs = [];
-    if(menu.isNotEmpty) {
-      for(MenuItem item in menu) {
-        if(item.code != null) {
-          tabs.add(TabColItem(
-              title: item.code!,
-              isSelected: item.code!.compareTo(_pre_selectMenuBar) == 0 ? true : false
-          ));
+    if (menu.isNotEmpty) {
+      for (MenuItem item in menu) {
+        if (item.code != null) {
+          tabs.add(TabColItem(title: item.code!, isSelected: item.code!.compareTo(_pre_selectMenuBar) == 0 ? true : false));
         }
       }
     }
@@ -82,20 +80,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   List<Widget> getBody(MenuItem? itemMenu) {
     List<Widget> body = [];
-    if(itemMenu == null || itemMenu.children == null || itemMenu.children!.isEmpty) {
-
+    if (itemMenu == null || itemMenu.children == null || itemMenu.children!.isEmpty) {
     } else {
-      if(itemMenu.type == null || itemMenu.type!.isEmpty) {
-
+      if (itemMenu.type == null || itemMenu.type!.isEmpty) {
       } else if (itemMenu.type!.compareTo("base") == 0) {
         body.add(BaseSidebar(
-          items:(itemMenu.children != null ? itemMenu.children! : []),
+          items: (itemMenu.children != null ? itemMenu.children! : []),
           controller: _sidebarController,
           root: (itemMenu.code != null ? itemMenu.code! : ""),
         ));
-      } else {
-
-      }
+      } else {}
     }
 
     body.add(widget.child);
@@ -108,13 +102,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final appConfig = ref.watch(appConfigProvider);
     final appColors = ref.watch(getAppColor);
 
     MenuItem? itemMenu;
-    if(appConfig.cfgMenu.isNotEmpty) {
+    if (appConfig.cfgMenu.isNotEmpty) {
       itemMenu = appConfig.cfgMenu.where((s) => s.code != null && s.code!.compareTo(_pre_selectMenuBar) == 0).firstOrNull;
     }
 
@@ -122,37 +117,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       key: _homeKey,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(35),
-          child: Material(
+          preferredSize: const Size.fromHeight(65),
+          child: Container(
             color: appColors.mainColor,
             child: Row(
               children: [
+                _buildLogo(),
                 Expanded(
-                  child: ListView(
+                  child:  SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.zero,
-                    children: getTab(appConfig.cfgMenu),
+                    child: Row(
+                      children: ref.read(configMenuProvider).map((item){
+                        if(item.children!.isEmpty){
+                          return SingleButtonNavBar(item: item);
+                        }else{
+                          return MultipleButtonNavBar(item: item);
+                        }
+                      }).toList(),
+                    ),
                   ),
-                ),
-                const SizedBox(
-                  width: 4,
-                ),
-                const NotificationButton(),
-                const SizedBox(
-                  width: 4,
-                ),
-                const LanguageButton(),
-                const SizedBox(
-                  width: 4,
-                ),
-                const AccountButton(),
+                )
               ],
-            ),
+            )
           ),
         ),
         body: Row(
           children: getBody(itemMenu),
         ),
+      ),
+    );
+  }
+  Widget _buildLogo(){
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: const Image(
+        image: AssetImage(
+          bigLogoDark,
+        ),
+        fit: BoxFit.cover,
       ),
     );
   }

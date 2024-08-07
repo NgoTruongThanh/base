@@ -83,6 +83,26 @@ class AccountButton extends ConsumerWidget{
             });
           },
         ),
+
+        MenuItemButton(
+          child: Text(
+            ref.watch(configLanguageProvider).logout,
+            style: TextStyle(
+              fontStyle: FontStyle.normal,
+              fontWeight: FontWeight.bold,
+              color: appColors.accountTextColor,
+              //backgroundColor: appColors.mainColor
+            ),
+          ),
+          onPressed: () {
+            clearUserStore().then((value) {
+              Future.delayed(const Duration(milliseconds: 100), () {
+                context.goNamed("login");
+              });
+            });
+          },
+        ),
+
       ],
     );
   }
